@@ -30,7 +30,6 @@ import {
   CONVERSATION_TYPE,
   RemoteConversations,
 } from '@wireapp/api-client/src/conversation';
-import {QualifiedId} from '@wireapp/api-client/src/user';
 import {ACCESS_STATE} from './AccessState';
 import {ConversationStatus} from './ConversationStatus';
 import {Conversation} from '../entity/Conversation';
@@ -273,10 +272,10 @@ export class ConversationMapper {
   ): ConversationDatabaseData[] {
     localConversations = localConversations.filter(conversationData => conversationData);
 
-    const failedConversations = (remoteConversations.failed ?? []).reduce(
-      (prev: ConversationDatabaseData[], curr: QualifiedId) => {
-        const convo = localConversations.find(conversationId => matchQualifiedIds(conversationId, curr));
-        return convo ? [...prev, convo] : prev;
+    const failedConversations = (remoteConversations.failed ?? []).reduce<ConversationDatabaseData[]>(
+      (conversationDatabaseData, item) => {
+        const conversationData = localConversations.find(conversationId => matchQualifiedIds(conversationId, item));
+        return conversationData ? [...conversationDatabaseData, conversationData] : conversationDatabaseData;
       },
       [],
     );
@@ -287,7 +286,7 @@ export class ConversationMapper {
         remoteConversations.found?.findIndex(remote => remote.qualified_id.id === conversationData.id) === -1,
     );
 
-    const foundRemoteConversations = remoteConversations.found.map(
+    const foundRemoteConversations = (remoteConversations.found ?? []).map(
       (remoteConversationData: ConversationBackendData, index: number) => {
         const remoteConversationId: QualifiedEntity = remoteConversationData.qualified_id || {
           domain: '',
