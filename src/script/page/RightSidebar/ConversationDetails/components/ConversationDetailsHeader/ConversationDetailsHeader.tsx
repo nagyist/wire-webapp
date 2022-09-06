@@ -120,9 +120,11 @@ const ConversationDetailsHeader: FC<ConversationDetailsHeaderProps> = ({
                 onClick: clickToEditGroupName,
               })}
             >
-              {displayName && <div className="conversation-details__name">{displayName}</div>}
+              {groupName && <div className="conversation-details__name">{groupName}</div>}
 
-              {canRenameGroup && <Icon.Edit className="conversation-details__name__edit-icon" />}
+              {canRenameGroup && (
+                <Icon.Edit className="conversation-details__name__edit-icon" data-uie-name="do-edit-group-name" />
+              )}
             </div>
           ) : (
             <textarea
@@ -131,9 +133,6 @@ const ConversationDetailsHeader: FC<ConversationDetailsHeaderProps> = ({
               dir="auto"
               spellCheck="false"
               maxLength={ConversationRepository.CONFIG.GROUP.MAX_NAME_LENGTH}
-              // style={{
-              //   height: textareaHeight
-              // }}
               onChange={renameConversation}
               onKeyDown={handleRenameConversation}
               // resize
