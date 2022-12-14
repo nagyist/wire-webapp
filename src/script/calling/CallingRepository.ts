@@ -1112,7 +1112,7 @@ export class CallingRepository {
       const parsedPayload = JSON.parse(payload);
       const messageType = parsedPayload.type as CALL_MESSAGE_TYPE;
       if (messageType === CALL_MESSAGE_TYPE.REJECT) {
-        return;
+        return this.messageRepository.sendSelfCallingMessage(payload);
       }
     }
 
