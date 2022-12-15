@@ -632,6 +632,7 @@ export class CallingRepository {
       this.serializeQualifiedId(conversationId),
       this.serializeQualifiedId(userId),
       conversationEntity?.isUsingMLSProtocol ? senderClientId : clientId,
+      conversationEntity?.isUsingMLSProtocol ? CONV_TYPE.CONFERENCE_MLS : CONV_TYPE.CONFERENCE,
     );
 
     if (res !== 0) {
