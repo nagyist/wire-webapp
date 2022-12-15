@@ -1094,7 +1094,7 @@ export class CallingRepository {
     conversationId: QualifiedId,
     payload: string | Object,
     options?: MessageSendingOptions,
-  ) => {
+  ): Promise<void> => {
     const conversation = this.conversationState.findConversation(conversationId);
     if (!conversation) {
       this.logger.warn(`Unable to send calling message, no conversation found with id ${conversationId}`);
@@ -1113,7 +1113,7 @@ export class CallingRepository {
       const parsedPayload = JSON.parse(payload);
       const messageType = parsedPayload.type as CALL_MESSAGE_TYPE;
       if (messageType === CALL_MESSAGE_TYPE.REJECT) {
-        return this.messageRepository.sendSelfCallingMessage(payload);
+        return void this.messageRepository.sendSelfCallingMessage(payload);
       }
     }
 
