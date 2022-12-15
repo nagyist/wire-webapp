@@ -2,7 +2,7 @@
   "dependencies": {
     "@emotion/react": "11.10.5",
     "@types/eslint": "^8.4.10",
-    "@wireapp/avs": "./wireapp-avs-0.0.4130.tgz",
+    "@wireapp/avs": "9.0.1",
     "@wireapp/core": "37.3.0",
     "@wireapp/react-ui-kit": "9.3.0",
     "@wireapp/store-engine-dexie": "2.0.3",
