@@ -387,7 +387,7 @@ export class BackupRepository {
     await this.conversationRepository.updateConversations(readableConversations);
     await this.conversationRepository.initAllLocal1To1Conversations();
     // doesn't need to be awaited
-    void this.conversationRepository.checkForDeletedConversations();
+    void this.conversationRepository.syncDeletedConversations();
   }
 
   private async importConversations(
@@ -486,7 +486,7 @@ export class BackupRepository {
     const metaData = new TextDecoder().decode(rawData);
     const parsedMetaData = JSON.parse(metaData);
     const archiveVersion = this._verifyMetadata(user, parsedMetaData);
-    this.logger.log('Validated metadata during history import', files);
+    this.logger.debug('Validated metadata during history import', files);
     return archiveVersion;
   }
 

@@ -29,14 +29,14 @@ import {StatusType} from 'src/script/message/StatusType';
 import {useKoSubscribableChildren} from 'Util/ComponentUtil';
 import {includesOnlyEmojis} from 'Util/EmojiUtil';
 
-import {AudioAsset} from './AudioAsset';
-import {FileAsset} from './FileAssetComponent';
+import {AudioAsset} from './AudioAsset/AudioAsset';
+import {FileAsset} from './FileAsset/FileAsset';
 import {ImageAsset} from './ImageAsset';
 import {LinkPreviewAsset} from './LinkPreviewAssetComponent';
 import {LocationAsset} from './LocationAsset';
 import {MessageButton} from './MessageButton';
 import {TextMessageRenderer} from './TextMessageRenderer';
-import {VideoAsset} from './VideoAsset';
+import {VideoAsset} from './VideoAsset/VideoAsset';
 
 import {MessageActions} from '../..';
 import {AssetType} from '../../../../../assets/AssetType';
@@ -54,7 +54,7 @@ interface ContentAssetProps {
   selfId: QualifiedId;
   isMessageFocused: boolean;
   is1to1Conversation: boolean;
-  isLastDeliveredMessage: boolean;
+  isFileShareRestricted: boolean;
   onClickDetails: () => void;
 }
 
@@ -67,10 +67,10 @@ const ContentAsset = ({
   onClickButton,
   isMessageFocused,
   is1to1Conversation,
-  isLastDeliveredMessage,
   onClickDetails,
 }: ContentAssetProps) => {
   const {isObfuscated, status} = useKoSubscribableChildren(message, ['isObfuscated', 'status']);
+  const {previews} = useKoSubscribableChildren(asset as Text, ['previews']);
 
   switch (asset.type) {
     case AssetType.TEXT:
@@ -95,25 +95,15 @@ const ContentAsset = ({
           )}
 
           {shouldRenderText && (
-            <ReadIndicator
-              message={message}
-              is1to1Conversation={is1to1Conversation}
-              isLastDeliveredMessage={isLastDeliveredMessage}
-              onClick={onClickDetails}
-            />
+            <ReadIndicator message={message} is1to1Conversation={is1to1Conversation} onClick={onClickDetails} />
           )}
 
-          {(asset as Text).previews().map(preview => (
+          {previews.map(() => (
             <div key={asset.id} className="message-asset">
               <LinkPreviewAsset message={message} isFocusable={isMessageFocused} />
 
               {!shouldRenderText && (
-                <ReadIndicator
-                  message={message}
-                  is1to1Conversation={is1to1Conversation}
-                  isLastDeliveredMessage={isLastDeliveredMessage}
-                  onClick={onClickDetails}
-                />
+                <ReadIndicator message={message} is1to1Conversation={is1to1Conversation} onClick={onClickDetails} />
               )}
             </div>
           ))}
@@ -121,69 +111,30 @@ const ContentAsset = ({
       );
     case AssetType.FILE:
       if ((asset as FileAssetType).isFile()) {
-        return (
-          <div className={`message-asset ${isObfuscated ? 'ephemeral-asset-expired icon-file' : ''}`}>
-            <FileAsset message={message} isFocusable={isMessageFocused} />
-
-            <ReadIndicator
-              message={message}
-              is1to1Conversation={is1to1Conversation}
-              isLastDeliveredMessage={isLastDeliveredMessage}
-              onClick={onClickDetails}
-            />
-          </div>
-        );
+        return <FileAsset message={message} isFocusable={isMessageFocused} />;
       }
 
       if ((asset as FileAssetType).isAudio()) {
-        return (
-          <div className={`message-asset ${isObfuscated ? 'ephemeral-asset-expired' : ''}`}>
-            <AudioAsset message={message} isFocusable={isMessageFocused} />
-
-            <ReadIndicator
-              message={message}
-              is1to1Conversation={is1to1Conversation}
-              isLastDeliveredMessage={isLastDeliveredMessage}
-              onClick={onClickDetails}
-            />
-          </div>
-        );
+        return <AudioAsset message={message} isFocusable={isMessageFocused} />;
       }
 
       if ((asset as FileAssetType).isVideo()) {
-        return (
-          <div className={`message-asset ${isObfuscated ? 'ephemeral-asset-expired icon-movie' : ''}`}>
-            <VideoAsset message={message} isFocusable={isMessageFocused} />
-
-            <ReadIndicator
-              message={message}
-              is1to1Conversation={is1to1Conversation}
-              isLastDeliveredMessage={isLastDeliveredMessage}
-              onClick={onClickDetails}
-            />
-          </div>
-        );
+        return <VideoAsset message={message} isFocusable={isMessageFocused} />;
       }
+
     case AssetType.IMAGE:
       return (
-        <div className={`message-asset ${isObfuscated ? 'ephemeral-asset-expired' : ''}`}>
-          <ImageAsset
-            asset={asset as MediumImage}
-            message={message}
-            onClick={onClickImage}
-            isFocusable={isMessageFocused}
-          />
-
-          <ReadIndicator
-            message={message}
-            is1to1Conversation={is1to1Conversation}
-            isLastDeliveredMessage={isLastDeliveredMessage}
-            onClick={onClickDetails}
-          />
-        </div>
+        <ImageAsset
+          asset={asset as MediumImage}
+          message={message}
+          onClick={onClickImage}
+          isFocusable={isMessageFocused}
+        />
       );
+
     case AssetType.LOCATION:
       return <LocationAsset asset={asset as Location} />;
+
     case AssetType.BUTTON:
       const assetId = asset.id;
       if (!(message instanceof CompositeMessage && asset instanceof Button && assetId)) {
@@ -199,6 +150,7 @@ const ContentAsset = ({
         />
       );
   }
+
   return null;
 };
 
